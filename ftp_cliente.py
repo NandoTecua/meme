@@ -1,16 +1,15 @@
 #!/user/bin/python3
 
-import sys, socket, re, os, string, time, urllib2
+import sys, socket, re, os, string, time
 
-class mk_socket:
+class sockets:
     
     def __init__(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.s.connect((192.100.230.21, 21))
-        self.sid = str(sid)
+        self.s.connect(('192.100.230.21', 21))
         self.open = True
         
-     def relay(self, mes='', expect=False, filt=''):
+    def relay(self, mes='', expect=False, filt=''):
         self.send(mes, True, filt)
         return self.recv(expect)
 
@@ -29,7 +28,7 @@ class mk_socket:
             
             if rec[3] == '-':
                 return rec+self.recv()
-        return rec        
+        return rec
 
     def send(self, mes='', CRLF=True, filt=''):
         print (self.sid, '>>>',)
@@ -47,7 +46,7 @@ class mk_socket:
                 print (mes)
 
 class ftp_client:
-	
+
     def __init__(self):
 
         self.timezone = 0
@@ -55,28 +54,19 @@ class ftp_client:
         self.sock_pasv = False
       
     def connect(self):
-        self.sock.connect(())
-        
-    def send(self,msg):
-        totalsent = 0
-        MSGLEN=len(msg)
-        while totalsent < MSGLEN:
-            sent = self.sock.send(msg[totalsent:])
-            if sent == 0:
-                raise RuntimeError, "socket connection broken"
-            totalsent = totalsent + sent
+        self.sock = sockets()
             
     def sendcmd(self,cmd):
         cmd = cmd + "\r\n"
         self.send(cmd)
-	
+
     def LOGIN(self, usern, passw):
         self.sock_main.relay('USER '+usern)
         res = self.sock_main.relay('PASS '+passw, filt=passw)
 
         if self.handle.get_id(res) != 230:
             self.error(UNEXPECTED_RESPONSE, 'incorrect username or password')
-		
+
     def DIR(self):
 
         self.PASV()
@@ -104,7 +94,7 @@ class ftp_client:
         
         return flist
         
-     def CDUP(self):
+    def CDUP(self):
         self.sock_main.relay('CDUP')
 
     def MODE(self, m='S'):
@@ -124,19 +114,20 @@ class ftp_client:
 
         if self.sock_pasv:
             self.think('Checking for open socket')
-            assert not self.sock_pasv.open 
+            assert not self.sock_pasv.open
         
         msg = self.sock_main.relay('PASV')
         newip, newport = self.handle.parse_pasv(msg)
 
         self.sock_pasv = mk_socket(2, newip, newport)
 
-        return newip, newport 
+        return newip, newport
 
        
-	
+
         
 #-----------------------------------------------------------------
+if __name__ == '__main__':    
     MYclient = ftp_client()
     
     try:
@@ -147,7 +138,7 @@ class ftp_client:
         sys.exit(1)
         
     try:
-        MYclient.LOGIN(input("userftp"), input("r3d3sf1s1c@s"))
+        MYclient.LOGIN(input("usuario:"), input("password:"))
         
     except UNEXPECTED_RESPONSE:
         print ("Incorrect login")
@@ -155,4 +146,3 @@ class ftp_client:
     
 
     MYclient.QUIT()
-
