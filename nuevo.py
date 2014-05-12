@@ -97,6 +97,7 @@ class ftp_client:
 			ar = aux2[len(aux2) - 1]
 			listar += ('/', '')[dir.find("d")] + ar + '\r\n'
 		print(listar)
+		self.puerto_pasivob = True
 		    
     def Borrar(self, cosa):
 		self.sock_main.enviar('DELE '+cosa)
@@ -130,14 +131,15 @@ class ftp_client:
 		self.puerto_pasivo.cerrar()
 		time.sleep(0.5)
 		print (self.sock_main.recibir())
-		self.puerto_pasivob = False
+		#self.puerto_pasivob = True
 		
     def TYPE(self, t='A'):
 		self.sock_main.enviar('TYPE '+t)
 		self.tipo = t
 		
     def bajar(self, fname, fsource):
-		self.pasivo()
+		if self.puerto_pasivob == 0:
+			self.pasivo()
 		self.sock_main.enviar('RETR '+fname)
 		msg = ''
 		add = True
@@ -146,6 +148,7 @@ class ftp_client:
 			msg += add
 		file = open(fsource,'w')
 		file.write(msg)
+		#self.puerto_pasivob = True
 		
     def Mostrar_dirLoc(self, dir = "/"):
 		stri = '\r\n'.join(os.listdir(dir))
@@ -180,16 +183,43 @@ if __name__ == '__main__':
 	
 	
 	MYclient.LOGIN(raw_input('Usuario: '), raw_input('Contrasena: '))
+
 	
+	variable = raw_input('Que quieres probar, binario o ascii (b/a)')
+	
+	if variable == 'b':
+		MYclient.TYPE('I')
+		MYclient.bajar('pokebola.png', '/home/ec2-user/pokebola.png')
+		MYclient.subir('pokebola5.png', '/home/ec2-user/pokebola.png')
+		MYclient.TYPE()
+		MYclient.lista()
+	elif variable == 'a':
+		MYclient.bajar('p131.py', '/home/ec2-user/p131.py')
+		MYclient.subir('p45.py', '/home/ec2-user/p131.py')
+		MYclient.lista()
+	else:
+		print ("opcion no valida, adios")
 	#MYclient.CDD('Tecu')
 	
 	#MYclient.TYPE('I')
 	
-	MYclient.bajar('p132.py', '/home/ec2-user/nt')
+	#MYclient.lista()
 	
-
+	#MYclient.bajar('p131.py', '/home/ec2-user/p131.py')
 	
-	#MYclient.subir('fin_pre.py', '/home/ec2-user/nuevo.py')
+	MYclient.Mostrar_dirLoc('/home/ec2-user/')
 	
-	MYclient.lista()
+	#MYclient.TYPE('I')
+	
+	#MYclient.bajar('pokebola.png', '/home/ec2-user/pokeball.png')
+	
+	#MYclient.CDD('Tecu')
+			
+	#MYclient.subir('p133.py', '/home/ec2-user/p131.py')
+	
+	
+	
+	#MYclient.lista()
 	#MYclient.CND('Tecu')
+	
+		
