@@ -1,7 +1,7 @@
 #!/user/bin/python3
 
 import sys, socket, re, os, string, time, glob, curses, curses.textpad
-
+from os import system
 
 
 class mk_socket:
@@ -155,6 +155,14 @@ class ftp_client:
 		print (stri)
 
 
+def get_param(prompt_string):
+     screen.clear()
+     screen.border(0)
+     screen.addstr(2, 2, prompt_string)
+     screen.refresh()
+     input = screen.getstr(10, 10, 60)
+     return input
+		
 if __name__ == '__main__':
     
 	#stdscr = curses.initscr()
@@ -175,14 +183,41 @@ if __name__ == '__main__':
 	#print (ip)
 	#print (port)
 	MYclient = ftp_client()
-	
-	#MYclient.Mostrar_dirLoc("/")
-	
-	MYclient.connectar(raw_input('Direccion: '), int(raw_input('Puerto: ')))
-	
-	
-	
-	MYclient.LOGIN(raw_input('Usuario: '), raw_input('Contrasena: '))
+	x = 0
+	if raw_input('Quieres ver la beta de ncurses? (y/n)') == 'y':
+		while x != ord('4'):
+			screen = curses.initscr()
+
+			screen.clear()
+			screen.border(0)
+			screen.addstr(2, 2, "Please enter a number...")
+			screen.addstr(4, 4, "1 - Seleccionar servidor")
+			screen.addstr(5, 4, "2 - Seleccionar Usuario")
+			screen.addstr(7, 4, "3 - Exit")
+			screen.refresh()
+
+			x = screen.getch()
+
+			if x == ord('1'):
+				username = get_param("direccion")
+				puert = get_param("puerto")
+				MYclient.connectar(username, int(puert))
+				curses.endwin()
+			
+			if x == ord('2'):
+				username = get_param("usuario")
+				cont = get_param("contrasena")
+				curses.endwin()
+				MYclient.LOGIN(username, cont)
+			
+			if x == ord('3'):
+				break
+		curses.endwin()
+		
+	else:	
+		#MYclient.Mostrar_dirLoc("/")
+		MYclient.connectar(raw_input('Direccion: '), int(raw_input('Puerto: ')))
+		MYclient.LOGIN(raw_input('Usuario: '), raw_input('Contrasena: '))
 
 	
 	variable = raw_input('Que quieres probar, binario o ascii (b/a)')
@@ -195,7 +230,7 @@ if __name__ == '__main__':
 		MYclient.lista()
 	elif variable == 'a':
 		MYclient.bajar('p131.py', '/home/ec2-user/p131.py')
-		MYclient.subir('p45.py', '/home/ec2-user/p131.py')
+		MYclient.subir('p48.py', '/home/ec2-user/p131.py')
 		MYclient.lista()
 	else:
 		print ("opcion no valida, adios")
@@ -223,3 +258,4 @@ if __name__ == '__main__':
 	#MYclient.CND('Tecu')
 	
 		
+
