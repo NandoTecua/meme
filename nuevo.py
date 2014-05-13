@@ -98,6 +98,7 @@ class ftp_client:
 			listar += ('/', '')[dir.find("d")] + ar + '\r\n'
 		print(listar)
 		self.puerto_pasivob = True
+		return listar
 		    
     def Borrar(self, cosa):
 		self.sock_main.enviar('DELE '+cosa)
@@ -152,7 +153,7 @@ class ftp_client:
 		
     def Mostrar_dirLoc(self, dir = "/"):
 		stri = '\r\n'.join(os.listdir(dir))
-		print (stri)
+		return stri
 
 
 def get_param(prompt_string):
@@ -165,10 +166,16 @@ def get_param(prompt_string):
 	 
 def imp(mens):
 	screen.clear()
-	screen.border(0)
 	screen.addstr(2,2, mens)
-	screen.getstr(10, 10, 60)
-		
+	screen.getstr(1, 1, 60)
+def impl(listar):
+	screen.clear()
+	screen.border(0)
+	aux = listar.split("\r\n")
+	for i in range(len(aux)):
+		screen.addstr(int(i+2), 2, str(aux[i]))
+	screen.getstr(1, 1, 60)
+	
 if __name__ == '__main__':
     
 	#stdscr = curses.initscr()
@@ -189,9 +196,11 @@ if __name__ == '__main__':
 	#print (ip)
 	#print (port)
 	MYclient = ftp_client()
+	print (MYclient.Mostrar_dirLoc("/home/ec2-user/"))
 	x = 0
 	bc = False
 	bu = False
+	fint = False
 	if raw_input('Quieres ver la beta de ncurses? (y/n)') == 'y':
 		while x != ord('4'):
 			screen = curses.initscr()
@@ -208,14 +217,17 @@ if __name__ == '__main__':
 			screen.addstr(10, 4, "7 - Cambair directorio de trabajo")
 			screen.addstr(11, 4, "8 - Cambiar permisos de archivos")
 			screen.addstr(12, 4, "9 - Borrar archivos")
-			screen.addstr(13, 4, "10 - Exit")
+			screen.addstr(13, 4, "a - Cambiar carpeta remota")
+			screen.addstr(14, 4, "b - Crear carpeta remota")
+			screen.addstr(15, 4, "c - Exit")
 			screen.refresh()
 
 			x = screen.getch()
-
+			
+			
 			if x == ord('1'):
-				username = get_param("direccion")
-				puert = get_param("puerto")
+				username = get_param("direccion IP del servidor")
+				puert = get_param("puerto del servidor")
 				MYclient.connectar(username, int(puert))
 				bc = True
 				curses.endwin()
@@ -229,9 +241,71 @@ if __name__ == '__main__':
 					bu = True
 					curses.endwin()
 				else:
-					imp("Debes de conectarte a un servidor primero")
-			
+					imp('\r\nDebes de conectarte a un servidor primero')
+
 			if x == ord('3'):
+				direct = get_param("Dame un directorio valido desde la raiz (ruta absoluta)") 
+				impl(MYclient.Mostrar_dirLoc(direct))
+				curses.endwin()
+			
+			if x == ord('8'):
+				if (bc==True) and (bu==True):
+					imp("exito")
+					curses.endwin()
+				else:
+					imp("Conectate primero a un servidor con un usuario valido")					
+					
+			if x == ord('4'):
+				if (bc==True) and (bu==True):
+					archi = get_param("Dame el archivo (con su ruta oabsoluta)")
+					nom = get_param("Dame el nombre con el que se va a mostrar el archivo")
+					MYclient.subir(nom, archi)
+					curses.endwin()
+				else:
+					imp("Conectate primero a un servidor con un usuario valido")					
+
+			if x == ord('5'):
+				if (bc==True) and (bu==True):
+					archi = MYclient.lista()
+					impl(archi)
+					curses.endwin()
+				else:
+					imp("Conectate primero a un servidor con un usuario valido")
+					
+			if x == ord('7'):
+				if (bc==True) and (bu==True):
+					archi = get_param("Dame la ruta con el nombre incorporado (del archivo a crear/escribir)")
+					nom = get_param("Dame el nombre del archivo en el servidor")
+					MYclient.subir(nom, archi)
+					curses.endwin()
+				else:
+					imp("Conectate primero a un servidor con un usuario valido")
+
+			if x == ord('9'):
+				if (bc==True) and (bu==True):
+					nom = get_param("Dame el nombre del archivo ea eliminar")
+					MYclient.Borrar(nom)
+					curses.endwin()
+				else:
+					imp("Conectate primero a un servidor con un usuario valido")					
+			
+			if x == ord('a'):
+				if (bc==True) and (bu==True):
+					nom = get_param("Dame el nombre del directorio")
+					MYclient.CDD(nom)
+					curses.endwin()
+				else:
+					imp("Conectate primero a un servidor con un usuario valido")
+			
+			if x == ord('b'):
+				if (bc==True) and (bu==True):
+					nom = get_param("Dame el nombre del directorio a crear")
+					MYclient.CND(nom)
+					curses.endwin()
+				else:
+					imp("Conectate primero a un servidor con un usuario valido")
+			
+			if x == ord('c'):
 				break
 		curses.endwin()
 		
@@ -241,20 +315,21 @@ if __name__ == '__main__':
 		MYclient.LOGIN(raw_input('Usuario: '), raw_input('Contrasena: '))
 
 	
-	variable = raw_input('Que quieres probar, binario o ascii (b/a)')
+		variable = raw_input('Que quieres probar, binario o ascii (b/a)')
 	
-	if variable == 'b':
-		MYclient.TYPE('I')
-		MYclient.bajar('pokebola.png', '/home/ec2-user/pokebola.png')
-		MYclient.subir('pokebola5.png', '/home/ec2-user/pokebola.png')
-		MYclient.TYPE()
-		MYclient.lista()
-	elif variable == 'a':
-		MYclient.bajar('p131.py', '/home/ec2-user/p131.py')
-		MYclient.subir('p48.py', '/home/ec2-user/p131.py')
-		MYclient.lista()
-	else:
-		print ("opcion no valida, adios")
+		if variable == 'b':
+			MYclient.TYPE('I')
+			MYclient.bajar('pokebola.png', '/home/ec2-user/pokebola.png')
+			MYclient.subir('pokebola5.png', '/home/ec2-user/pokebola.png')
+			MYclient.TYPE()
+			MYclient.lista()
+		elif variable == 'a':
+			MYclient.bajar('p131.py', '/home/ec2-user/p131.py')
+			MYclient.subir('p48.py', '/home/ec2-user/p131.py')
+			MYclient.lista()
+		else:
+			print ("opcion no valida, adios")
+		MYclient.Mostrar_dirLoc('/home/ec2-user/')
 	#MYclient.CDD('Tecu')
 	
 	#MYclient.TYPE('I')
@@ -263,7 +338,6 @@ if __name__ == '__main__':
 	
 	#MYclient.bajar('p131.py', '/home/ec2-user/p131.py')
 	
-	MYclient.Mostrar_dirLoc('/home/ec2-user/')
 	
 	#MYclient.TYPE('I')
 	
@@ -279,3 +353,4 @@ if __name__ == '__main__':
 	#MYclient.CND('Tecu')
 	
 		
+
