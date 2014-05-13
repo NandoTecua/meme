@@ -162,6 +162,12 @@ def get_param(prompt_string):
      screen.refresh()
      input = screen.getstr(10, 10, 60)
      return input
+	 
+def imp(mens):
+	screen.clear()
+	screen.border(0)
+	screen.addstr(2,2, mens)
+	screen.getstr(10, 10, 60)
 		
 if __name__ == '__main__':
     
@@ -184,6 +190,8 @@ if __name__ == '__main__':
 	#print (port)
 	MYclient = ftp_client()
 	x = 0
+	bc = False
+	bu = False
 	if raw_input('Quieres ver la beta de ncurses? (y/n)') == 'y':
 		while x != ord('4'):
 			screen = curses.initscr()
@@ -193,7 +201,14 @@ if __name__ == '__main__':
 			screen.addstr(2, 2, "Please enter a number...")
 			screen.addstr(4, 4, "1 - Seleccionar servidor")
 			screen.addstr(5, 4, "2 - Seleccionar Usuario")
-			screen.addstr(7, 4, "3 - Exit")
+			screen.addstr(6, 4, "3 - Navegar directorio local")
+			screen.addstr(7, 4, "4 - Enviar Archivo")
+			screen.addstr(8, 4, "5 - Ver directorio remoto")
+			screen.addstr(9, 4, "6 - Bajar archvo")
+			screen.addstr(10, 4, "7 - Cambair directorio de trabajo")
+			screen.addstr(11, 4, "8 - Cambiar permisos de archivos")
+			screen.addstr(12, 4, "9 - Borrar archivos")
+			screen.addstr(13, 4, "10 - Exit")
 			screen.refresh()
 
 			x = screen.getch()
@@ -202,13 +217,19 @@ if __name__ == '__main__':
 				username = get_param("direccion")
 				puert = get_param("puerto")
 				MYclient.connectar(username, int(puert))
+				bc = True
 				curses.endwin()
+				
 			
 			if x == ord('2'):
-				username = get_param("usuario")
-				cont = get_param("contrasena")
-				curses.endwin()
-				MYclient.LOGIN(username, cont)
+				if bc:
+					username = get_param("usuario")
+					cont = get_param("contrasena")
+					MYclient.LOGIN(username, cont)
+					bu = True
+					curses.endwin()
+				else:
+					imp("Debes de conectarte a un servidor primero")
 			
 			if x == ord('3'):
 				break
@@ -258,4 +279,3 @@ if __name__ == '__main__':
 	#MYclient.CND('Tecu')
 	
 		
-
