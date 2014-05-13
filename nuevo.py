@@ -133,7 +133,10 @@ class ftp_client:
 		time.sleep(0.5)
 		print (self.sock_main.recibir())
 		#self.puerto_pasivob = True
-		
+
+    def Permisos(self, modo='555', arc=''):
+		self.sock_main.enviar('SITE CHMOD '+modo+' '+arc)
+	
     def TYPE(self, t='A'):
 		self.sock_main.enviar('TYPE '+t)
 		self.tipo = t
@@ -219,27 +222,35 @@ if __name__ == '__main__':
 			screen.addstr(12, 4, "9 - Borrar archivos")
 			screen.addstr(13, 4, "a - Cambiar carpeta remota")
 			screen.addstr(14, 4, "b - Crear carpeta remota")
-			screen.addstr(15, 4, "c - Exit")
+			screen.addstr(15, 4, "c - Cambiar modo (ascii o bin)")
+			screen.addstr(16, 4, "d - Cambiar permisos a archivos")
+			screen.addstr(17, 4, "e - Exit")
 			screen.refresh()
 
 			x = screen.getch()
 			
 			
 			if x == ord('1'):
-				username = get_param("direccion IP del servidor")
-				puert = get_param("puerto del servidor")
-				MYclient.connectar(username, int(puert))
-				bc = True
-				curses.endwin()
+				if bc:
+					imp('Ya te conectaste')
+				else:
+					username = get_param("direccion IP del servidor")
+					puert = get_param("puerto del servidor")
+					MYclient.connectar(username, int(puert))
+					bc = True
+					curses.endwin()
 				
 			
 			if x == ord('2'):
 				if bc:
-					username = get_param("usuario")
-					cont = get_param("contrasena")
-					MYclient.LOGIN(username, cont)
-					bu = True
-					curses.endwin()
+					if bu:
+						imp('Ya te logeaste')
+					else:
+						username = get_param("usuario")
+						cont = get_param("contrasena")
+						MYclient.LOGIN(username, cont)
+						bu = True
+						curses.endwin()
 				else:
 					imp('\r\nDebes de conectarte a un servidor primero')
 
@@ -306,6 +317,23 @@ if __name__ == '__main__':
 					imp("Conectate primero a un servidor con un usuario valido")
 			
 			if x == ord('c'):
+				if (bc==True) and (bu==True):
+					nom = get_param("Dame a cual quieres cambiarlo, A - ascii o I - Bin")
+					MYclient.TYPE(nom)
+					curses.endwin()
+				else:
+					imp("Conectate primero a un servidor con un usuario valido")
+			
+			if x == ord('d'):
+				if (bc==True) and (bu==True):
+					archi = get_param("Dame el nombre del archivo a cambiar permisos")
+					nom = get_param("El tipo de permisos que le vas a asignar (ej. 755)")
+					MYclient.Permisos(nom, archi)
+					curses.endwin()
+				else:
+					imp("Conectate primero a un servidor con un usuario valido")
+			
+			if x == ord('e'):
 				break
 		curses.endwin()
 		
